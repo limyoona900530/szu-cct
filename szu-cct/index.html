@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>SZU-CCT——轻便的真值表计算网站</title>
+	</head>
+	<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css" />
+	<link type="text/css" rel="stylesheet" href="css/normal.css" />
+	<body>
+		<div id="BIGBOX">
+			<div class="tips" id="tip">
+				<div class="container">
+					<h1>Try it on !</h1>
+					<h1>Try input "A+B" ?</h1>
+					<h1>Parameters should be on uppercase</h1>
+					<h1>Try it on !</h1>
+				</div>
+
+			</div>
+
+			<div class="inputBox">
+				<input id='input' type="text" placeholder="e.g. A+B"   />
+				<table id='result_box'></table>
+			</div>
+
+			<div id="note">
+				<ul>
+					<li>Use <b>+</b> as "OR"</li>
+					<li>Use <b>*</b> as "AND"</li>
+					<li>Use <b>!</b> as "NOT"</li>
+					<li>Use form like <b>"A", "B", "C"</b> as your paras</li>
+				</ul>
+			</div>
+		</div>
+
+		<footer> @2022 SZU-CCT copyright</footer>
+	</body>
+
+	<script>
+		function isvalid(s, n) {
+			let s_length = s.length;
+			if (s_length == 0) return false;
+			if (s[s_length - 1] < 'A' || s[s_length - 1] > 'Z') return false;
+			for (let i = 0; i < s.toString().length; i++) {
+				// if(s[i]!='('&&s[i]!=')'&&s[i]!='+'&&s[i]!='*'&&s[i]!='!'&&s[i]>'A'+n-1) return false;
+				if (s[i] != '(' && s[i] != ')' && s[i] != '+' && s[i] != '*' && s[i] != '!' && s[i] > 'A' + n - 1) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		document.querySelector("#input").oninput = function() {
+			let tips = document.querySelector("#tip")
+			tips.className = 'new_tip'
+			var instance = new Module.myclass();
+			let text = document.querySelector("#input").value;
+			if (text.length == 0) {
+				tips.className = 'tips'
+				draw("0", 0, 'A')
+			}
+			let para_num = getParaNums(text);
+			if (isvalid(text, para_num)) {
+				//@function Zimu(wei, n, s)
+				//@note wei -> current pos, initialize it as 1
+				//      n   -> number of paras 
+				//      s   -> expression 
+				instance.Zimu(1, para_num, text);
+				let ans = Module.myclass.getans(instance);
+				let paras = getParas(text);
+				draw(ans, para_num, paras);
+			}
+		}
+
+		function getParaNums(s) {
+			let cnt = 0;
+			for (let i = 0; i < s.toString().length; i++) {
+				if (s[i] <= 'Z' && s[i] >= 'A') cnt++;
+			}
+			return cnt;
+		}
+
+		function getParas(s) {
+			let res = "";
+			for (let i = 0; i < s.toString().length; i++) {
+				if (s[i] <= 'Z' && s[i] >= 'A') res += s[i];
+			}
+			return res;
+		}
+
+		function draw(ans, para_num, paras) {
+			var result_box = document.getElementById('result_box');
+			result_box.innerHTML = '';
+			if (para_num > 0) {
+				var t1 = document.createElement('tr')
+				for (let j = 0; j < para_num; j++) {
+					var t1c = document.createElement('td')
+					t1c.innerHTML = paras[j]
+					t1.appendChild(t1c)
+				}
+				var tout = document.createElement('td')
+				tout.innerHTML = "Output"
+				tout.style.cssText = "border-left: 3px solid #000"
+				t1.appendChild(tout)
+				t1.style.cssText = "border-bottom: 3px solid #000"
+				result_box.appendChild(t1)
+				for (let i = 0; i < Math.pow(2, para_num); i++) {
+					let num = new Number(i);
+					let str = num.toString(2);
+					while (str.length < para_num) {
+						str = "0" + str;
+					}
+					let output = "";
+					let newline = document.createElement('tr')
+					for (let j = 0; j < para_num; j++) {
+						let n1 = document.createElement('td')
+						n1.innerHTML = str[j]
+						newline.appendChild(n1)
+					}
+					let newr = document.createElement('td')
+					newr.innerHTML = ans[i]
+					newr.style.cssText = "border-left: 3px solid #000"
+					newline.append(newr)
+					result_box.append(newline)
+				}
+			}
+
+		}
+	</script>
+	<script async type="text/javascript" src="s4.js"></script>
+
+</html>
